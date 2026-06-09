@@ -461,3 +461,84 @@ and not exists
     where TEmpleado.nDepartamentoID = TDepartamento.nDepartamentoID
 );
 go
+
+select
+    e.cNombre,
+    e.cApellido,
+    p.cNombreProyecto
+from TEmpleado e
+inner join TEmpleadoProyecto ep
+    on e.nEmpleadoID = ep.nEmpleadoID
+inner join TProyecto p
+    on ep.nProyectoID = p.nProyectoID;
+go
+
+
+select
+    d.cNombreDepartamento,
+    count(e.nEmpleadoID) as CantidadEmpleados
+from TDepartamento d
+left join TEmpleado e
+    on d.nDepartamentoID = e.nDepartamentoID
+group by d.cNombreDepartamento;
+go
+
+select
+    d.cNombreDepartamento,
+    avg(e.nSalario) as SalarioPromedio
+from TDepartamento d
+inner join TEmpleado e
+    on d.nDepartamentoID = e.nDepartamentoID
+group by d.cNombreDepartamento;
+go
+
+select
+    d.cNombreDepartamento,
+    max(e.nSalario) as SalarioMaximo,
+    min(e.nSalario) as SalarioMinimo
+from TDepartamento d
+inner join TEmpleado e
+    on d.nDepartamentoID = e.nDepartamentoID
+group by d.cNombreDepartamento;
+go
+
+select
+    p.cNombreProyecto,
+    count(ep.nEmpleadoID) as CantidadEmpleados
+from TProyecto p
+inner join TEmpleadoProyecto ep
+    on p.nProyectoID = ep.nProyectoID
+group by p.cNombreProyecto
+having count(ep.nEmpleadoID) > 2;
+go
+
+select *
+from TEmpleado
+where cApellido like 'G%';
+go
+
+select *
+from TEmpleado
+order by nSalario desc;
+go
+
+select top 3 *
+from TEmpleado
+order by nSalario desc;
+go
+
+select *
+from TEmpleado
+where nEdad between 25 and 40;
+go
+
+select
+    count(*) as TotalEmpleadosActivos
+from TEmpleado
+where bActivo = 1;
+go
+
+select
+    count(*) as TotalProyectos
+from TProyecto;
+go
