@@ -432,3 +432,32 @@ values
 );
 go
 
+delete from TEmpleado
+where cNIF = 'EMP013';
+go
+
+delete from TEmpleado
+where bActivo = 0;
+go
+
+delete from TEmpleadoProyecto
+where nProyectoID = 3;
+go
+
+delete from TProyecto
+where nProyectoID = 3;
+go
+
+delete from TEmpleadoProyecto
+where nEmpleadoID = 5;
+go
+
+delete from TDepartamento
+where nDepartamentoID = 6
+and not exists
+(
+    select 1
+    from TEmpleado
+    where TEmpleado.nDepartamentoID = TDepartamento.nDepartamentoID
+);
+go
