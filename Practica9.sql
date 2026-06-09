@@ -542,3 +542,49 @@ select
     count(*) as TotalProyectos
 from TProyecto;
 go
+
+alter table TEmpleado
+drop constraint CHK_TEmpleado_Edad;
+go
+
+alter table TEmpleado
+drop constraint UQ_TEmpleado_Email;
+go
+
+
+alter table TEmpleado
+add constraint CHK_TEmpleado_Edad
+check (nEdad between 18 and 65);
+go
+
+alter table TEmpleado
+add constraint UQ_TEmpleado_Email
+unique (cEmail);
+go
+
+drop table TEmpleadoProyecto;
+go
+
+
+drop table TProyecto;
+go
+
+
+drop table TEmpleado;
+go
+
+
+drop table TCargo;
+go
+
+drop table TDepartamento;
+go
+
+drop table TSucursal;
+go
+
+use master;
+go
+
+drop database EmpresaSQL;
+go
