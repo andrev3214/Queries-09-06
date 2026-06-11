@@ -588,3 +588,177 @@ go
 
 drop database EmpresaSQL;
 go
+
+create table TCliente
+(
+    nClienteID int identity(1,1) primary key,
+
+    cNIF varchar(20) unique not null,
+
+    cNombre varchar(100) not null,
+
+    cApellido varchar(100) not null,
+
+    cEmail varchar(150) unique,
+
+    cTelefono varchar(20),
+
+    cDireccion varchar(200),
+
+    cGenero char(1)
+        constraint CHK_TCliente_Genero
+        check (cGenero in ('M','F')),
+
+    dFechaRegistro date
+        constraint DF_TCliente_FechaRegistro
+        default getdate(),
+
+    bActivo bit
+        constraint DF_TCliente_Activo
+        default 1
+);
+go
+
+create table TVenta
+(
+    nVentaID int identity(1,1) primary key,
+
+    nClienteID int not null,
+
+    dFechaVenta date not null,
+
+    nMonto decimal(10,2)
+        constraint CHK_TVenta_Monto
+        check (nMonto > 0),
+
+    constraint FK_TVenta_Cliente
+        foreign key (nClienteID)
+        references TCliente(nClienteID)
+);
+go
+
+insert into TCliente
+(
+    cNIF,
+    cNombre,
+    cApellido,
+    cEmail,
+    cTelefono,
+    cDireccion,
+    cGenero
+)
+values
+('CLI001','Juan','Perez','juan@correo.com','88880001','Managua','M'),
+('CLI002','Maria','Lopez','maria@correo.com','88880002','Masaya','F'),
+('CLI003','Carlos','Gomez','carlos@correo.com','88880003','Leon','M'),
+('CLI004','Ana','Martinez','ana@correo.com','88880004','Granada','F'),
+('CLI005','Luis','Ramirez','luis@correo.com','88880005','Rivas','M'),
+('CLI006','Sofia','Torres','sofia@correo.com','88880006','Chinandega','F'),
+('CLI007','Pedro','Castillo','pedro@correo.com','88880007','Esteli','M'),
+('CLI008','Laura','Vega','laura@correo.com','88880008','Jinotega','F'),
+('CLI009','Miguel','Diaz','miguel@correo.com','88880009','Boaco','M'),
+('CLI010','Elena','Ruiz','elena@correo.com','88880010','Matagalpa','F'),
+('CLI011','Roberto','Mendoza','roberto@correo.com','88880011','Managua','M'),
+('CLI012','Patricia','Herrera','patricia@correo.com','88880012','Masaya','F'),
+('CLI013','Fernando','Morales','fernando@correo.com','88880013','Leon','M'),
+('CLI014','Daniela','Silva','daniela@correo.com','88880014','Granada','F'),
+('CLI015','Jose','Flores','jose@correo.com','88880015','Rivas','M'),
+('CLI016','Gabriela','Rojas','gabriela@correo.com','88880016','Esteli','F'),
+('CLI017','Ricardo','Mora','ricardo@correo.com','88880017','Boaco','M'),
+('CLI018','Valeria','Campos','valeria@correo.com','88880018','Jinotega','F'),
+('CLI019','Andres','Ortiz','andres@correo.com','88880019','Matagalpa','M'),
+('CLI020','Karen','Navarro','karen@correo.com','88880020','Managua','F');
+go
+
+insert into TVenta (nClienteID,dFechaVenta,nMonto)
+values
+(1,'2026-01-05',150),(2,'2026-01-08',300),(3,'2026-01-12',450),
+(4,'2026-01-15',600),(5,'2026-01-20',250),(6,'2026-02-03',180),
+(7,'2026-02-06',520),(8,'2026-02-10',430),(9,'2026-02-15',270),
+(10,'2026-02-20',350),(11,'2026-03-01',800),(12,'2026-03-04',120),
+(13,'2026-03-07',700),(14,'2026-03-10',260),(15,'2026-03-15',410),
+(16,'2026-03-18',390),(17,'2026-03-22',560),(18,'2026-03-25',670),
+(19,'2026-03-28',740),(20,'2026-03-30',210),(1,'2026-04-01',150),
+(2,'2026-04-02',250),(3,'2026-04-03',350),(4,'2026-04-04',450),
+(5,'2026-04-05',550),(6,'2026-04-06',650),(7,'2026-04-07',750),
+(8,'2026-04-08',850),(9,'2026-04-09',950),(10,'2026-04-10',1050),
+(11,'2026-05-01',200),(12,'2026-05-02',300),(13,'2026-05-03',400),
+(14,'2026-05-04',500),(15,'2026-05-05',600),(16,'2026-05-06',700),
+(17,'2026-05-07',800),(18,'2026-05-08',900),(19,'2026-05-09',1000),
+(20,'2026-05-10',1100),(1,'2026-06-01',250),(2,'2026-06-02',350),
+(3,'2026-06-03',450),(4,'2026-06-04',550),(5,'2026-06-05',650),
+(6,'2026-06-06',750),(7,'2026-06-07',850),(8,'2026-06-08',950),
+(9,'2026-06-09',1050),(10,'2026-06-10',1150);
+go
+
+update TVenta
+set nMonto = nMonto * 1.10
+where nMonto > 1000;
+go
+
+delete from TCliente
+where nClienteID not in
+(
+    select distinct nClienteID
+    from TVenta
+);
+go
+
+select top 5
+    c.nClienteID,
+    c.cNombre,
+    c.cApellido,
+    sum(v.nMonto) as TotalCompras
+from TCliente c
+inner join TVenta v
+    on c.nClienteID = v.nClienteID
+group by
+    c.nClienteID,
+    c.cNombre,
+    c.cApellido
+order by TotalCompras desc;
+go
+
+select
+    month(dFechaVenta) as Mes,
+    sum(nMonto) as TotalVentas
+from TVenta
+group by month(dFechaVenta)
+order by Mes;
+go
+
+select
+    c.nClienteID,
+    c.cNombre,
+    c.cApellido,
+    avg(v.nMonto) as PromedioVentas
+from TCliente c
+inner join TVenta v
+    on c.nClienteID = v.nClienteID
+group by
+    c.nClienteID,
+    c.cNombre,
+    c.cApellido;
+go
+
+select
+    c.nClienteID,
+    c.cNombre,
+    c.cApellido,
+    v.nVentaID,
+    v.dFechaVenta,
+    v.nMonto,
+    r.CantidadVentas
+from TCliente c
+inner join TVenta v
+    on c.nClienteID = v.nClienteID
+inner join
+(
+    select
+        nClienteID,
+        count(*) as CantidadVentas
+    from TVenta
+    group by nClienteID
+) r
+    on c.nClienteID = r.nClienteID;
+go
